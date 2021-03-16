@@ -13,16 +13,16 @@ class ListOfUsersScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child:Column(
           children: [
-            Expanded(child: ListView.builder(
-              itemCount: controller.chatUsers.length,
-              itemBuilder: (context, index){
-                Users user = controller.chatUsers[index];
-                return ListTile(
-                  leading: Text(controller.chatUsers[index].id.toString()),
-                  title: Text(controller.chatUsers[index].userName),
-                );
-              },
-            ),)
+            // Expanded(child: ListView.builder(
+            //   // itemCount: controller.chatUsers.length,
+            //   itemBuilder: (context, index){
+            //     // Users user = controller.chatUsers[index];
+            //     return ListTile(
+            //       leading: Text(controller.chatUsers[index].id.toString()),
+            //       title: Text(controller.chatUsers[index].userName),
+            //     );
+            //   },
+            // ),)
           ],
         ),
         ),
