@@ -1,84 +1,69 @@
-import 'package:flutter/foundation.dart';
-import 'package:web_socket_channel/io.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final title = 'WebSocket Demo';
-    return MaterialApp(
-      title: title,
-      home: MyHomePage(
-        title: title,
-        channel: IOWebSocketChannel.connect('wss://echo.websocket.org'),
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  final String title;
-  final WebSocketChannel channel;
-
-  MyHomePage({Key key, @required this.title, @required this.channel})
-      : super(key: key);
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  TextEditingController _controller = TextEditingController();
-
+class HomePage extends StatelessWidget {
+  final channel = IOWebSocketChannel.connect(Uri.parse("ws://echo.websocket.org"));
+  TextEditingController masg = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
+      appBar: AppBar(),
+      body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Form(
-              child: TextFormField(
-                controller: _controller,
-                decoration: InputDecoration(labelText: 'Send a message'),
-              ),
-            ),
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
             StreamBuilder(
-              stream: widget.channel.stream,
+              stream: channel.stream,
               builder: (context, snapshot) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24.0),
-                  child: Text(snapshot.hasData ? '${snapshot.data}' : ''),
-                );
+                return Text("${snapshot.hasData ? snapshot.data : ''}");
               },
-            )
+            ),
+            Center(child: textField(masg, "")),
+            FlatButton(
+                color: Colors.blue,
+                onPressed: () {
+                  channel.sink.add(masg.text);
+                },
+                child: Text(
+                  "Send",
+                  style: TextStyle(color: Colors.white),
+                )),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _sendMessage,
-        tooltip: 'Send message',
-        child: Icon(Icons.send),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
-  void _sendMessage() {
-    if (_controller.text.isNotEmpty) {
-      widget.channel.sink.add(_controller.text);
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.channel.sink.close();
-    super.dispose();
+  Widget textField(controller, errorText) {
+    return Container(
+      height: 40,
+      width: double.maxFinite,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+        ),
+        child: TextFormField(
+          controller: controller,
+          decoration: new InputDecoration(
+            suffixIcon: Icon(Icons.send, color: Colors.blue,),
+              errorText: errorText,
+              errorStyle: TextStyle(color: Colors.red),
+              hintText: "Enter your massage here...",
+              contentPadding: const EdgeInsets.only(bottom: 10, top: 5),
+              errorBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2),
+              ),
+              enabledBorder: new UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.black54, width: 2),
+              ),
+              focusedBorder: new UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.green, width: 2)),
+              focusedErrorBorder: new UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.red),
+              )),
+        ),
+      ),
+    );
   }
 }
